@@ -76,10 +76,17 @@ Workflow:
 1. Read `.claude/references/domain-profile.md` for field journals and seminal references
 2. Check `master_supporting_docs/` for uploaded papers
 3. Read `bibliography_base.bib` for papers already in the project
-4. Dispatch Librarian to search:
+4. **Arxiv API search** — always run this FIRST for any literature review:
+   - Query: `http://export.arxiv.org/api/query?search_query=all:{topic}&max_results=15&sortBy=relevance&sortOrder=descending`
+   - Also search Chinese-language papers: `http://export.arxiv.org/api/query?search_query=all:{topic_chinese}&max_results=10`
+   - Fetch results via WebFetch (Atom XML format)
+   - Parse paper info: title, authors, abstract, arxiv ID, categories
+   - Flag if the paper has been published in a journal (check arxiv:announcement_type or journal_ref)
+5. Additional searches via WebSearch/WebFetch:
    - Top-5 journals (AER, Econometrica, QJE, JPE, REStud)
    - Field journals from domain-profile.md
    - NBER/SSRN/IZA working papers
+   - SSRN via WebSearch
    - **Citation chains** — forward and backward citation tracking from key papers. Follow: (a) backward citations (what do the key papers cite?), and (b) forward citations (who cites the key papers?). This is often the most productive search vector.
 5. Assign **proximity scores** to each paper:
    - **1** — Directly competes (same question, similar method)

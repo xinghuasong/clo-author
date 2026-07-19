@@ -1,13 +1,8 @@
-# CLAUDE.MD -- Empirical Economics Research with Claude Code
+# CLAUDE.MD -- Factor Investing & Machine Learning Research
 
-<!-- HOW TO USE: Replace [BRACKETED PLACEHOLDERS] with your project info.
-     Customize Beamer environments for your talk preamble.
-     Keep this file under ~150 lines — Claude loads it every session.
-     See the guide at https://hugosantanna.github.io/clo-author/ for full documentation. -->
-
-**Project:** [YOUR PROJECT NAME]
-**Institution:** [YOUR INSTITUTION]
-**Field:** [YOUR FIELD — Economics by default. Can be adapted to Finance, Accounting, Marketing, etc.]
+**Project:** 因子投资与机器学习研究
+**Institution:** 
+**Field:** Finance / Empirical Asset Pricing — Factor Investing, Machine Learning
 **Branch:** main
 
 ---
@@ -15,118 +10,77 @@
 ## Core Principles
 
 - **Plan first** -- enter plan mode before non-trivial tasks; save plans to `quality_reports/plans/`
-- **Verify after** -- compile and confirm output at the end of every task
-- **Single source of truth** -- Paper `main.tex` is authoritative; talks and supplements derive from it
-- **Quality gates** -- weighted aggregate score; nothing ships below 80/100; see `quality.md`
-- **Worker-critic pairs** -- every creator has a paired critic; critics never edit files
+- **Verify after** -- run and confirm output at the end of every task
+- **Quality gates** -- code score >= 80/100 before commit
 - **Auto-memory** -- corrections and preferences are saved automatically via Claude Code's built-in memory system
 
 ---
 
 ## Getting Started
 
-1. Fill in the `[BRACKETED PLACEHOLDERS]` in this file
-2. Run `/discover interview [topic]` to build your research specification
-3. Or run `/new-project [topic]` for the full orchestrated pipeline
+1. Activate Conda environment: `conda activate base` (Python 3.11.5)
+2. Run analysis notebooks in `scripts/Python/` in order
+3. See `data/raw/data2026.csv` for the full dataset
 
 ---
 
 ## Folder Structure
 
 ```
-[YOUR-PROJECT]/
+factor-research/
 ├── CLAUDE.MD                    # This file
 ├── .claude/                     # Rules, skills, agents, hooks
-├── Bibliography_base.bib        # Centralized bibliography
-├── paper/                       # Main LaTeX manuscript (source of truth)
-│   ├── main.tex                 # Primary paper file
-│   ├── sections/                # Section-level .tex files
-│   ├── figures/                 # Generated figures (.pdf, .png)
-│   ├── tables/                  # Generated tables (.tex)
-│   ├── talks/                   # Beamer presentations
-│   ├── quarto/                  # Quarto RevealJS presentations
-│   ├── preambles/               # LaTeX headers / shared preamble
-│   ├── supplementary/           # Online appendix and supplements
-│   └── replication/             # Replication package for deposit
-├── data/                        # Project data
-│   ├── raw/                     # Original untouched data (often gitignored)
-│   └── cleaned/                 # Processed datasets ready for analysis
-├── scripts/                     # Analysis code (R, Python, Julia)
-├── quality_reports/             # Plans, session logs, reviews, scores
-├── explorations/                # Research sandbox (see rules)
-├── templates/                   # Session log, quality report templates
-└── master_supporting_docs/      # Reference papers and data docs
+├── data/
+│   ├── raw/                     # Original data (data2026.csv)
+│   └── cleaned/                 # Processed datasets for analysis
+├── scripts/
+│   └── Python/                  # Python analysis notebooks & scripts
+│       ├── 01_factor_analysis.ipynb   # Factor analysis (descriptive, IC, correlation)
+│       ├── 02_ml_modeling.ipynb       # ML modeling (XGBoost, Ridge, SHAP)
+│       └── generate_ppt.py            # PPT lecture generation
+├── paper/
+│   ├── figures/
+│   │   ├── factor_analysis/     # Figures from 01_factor_analysis
+│   │   └── ml_modeling/         # Figures from 02_ml_modeling
+│   ├── tables/
+│   │   ├── factor_analysis/     # Tables from 01_factor_analysis
+│   │   └── ml_modeling/         # Tables from 02_ml_modeling
+│   └── talks/                   # Presentations (.pptx)
+├── quality_reports/             # Plans, session logs, reviews
+├── explorations/                # Research sandbox
+└── templates/                   # Templates
 ```
 
 ---
 
-## Commands
+## Data Fields
 
-```bash
-# Paper compilation (latexmk handles multi-pass + biber automatically)
-cd paper && latexmk main.tex
-
-# Talk compilation
-cd paper/talks && latexmk talk.tex
-
-# Clean auxiliary files
-cd paper && latexmk -c
-```
-
-> **Note:** `paper/latexmkrc` configures XeLaTeX, TEXINPUTS, and BIBINPUTS.
-> On Overleaf, set compiler to XeLaTeX via Menu > Compiler — Overleaf reads `latexmkrc` automatically.
-
----
-
-## Quality Thresholds
-
-| Score | Gate | Applies To |
-|-------|------|------------|
-| 80 | Commit | Weighted aggregate (blocking) |
-| 90 | PR | Weighted aggregate (blocking) |
-| 95 | Submission | Aggregate + all components >= 80 |
-| -- | Advisory | Talks (reported, non-blocking) |
-
-See `quality.md` for weighted aggregation formula.
-
----
-
-## Skills Quick Reference
-
-| Command | What It Does |
-|---------|-------------|
-| `/new-project [topic]` | Full pipeline: idea → paper (orchestrated) |
-| `/discover [mode] [topic]` | Discovery: interview, literature, data, ideation |
-| `/strategize [mode] [question]` | Identification strategy, pre-analysis plan, or formal theory section (`theory` mode) |
-| `/analyze [dataset]` | End-to-end data analysis |
-| `/write [section]` | Draft paper sections + humanizer pass (`style-guide` mode extracts voice from prior papers) |
-| `/review [file/--flag]` | Quality reviews (routes by target: paper, code, peer) |
-| `/revise [report]` | R&R cycle: classify + route referee comments |
-| `/talk [mode] [format]` | Create, audit, or compile Beamer presentations |
-| `/submit [mode]` | Journal targeting → package → audit → final gate |
-| `/tools [subcommand]` | Utilities: commit, compile, validate-bib, journal, etc. |
-| `/checkpoint [--flag]` | Session handoff: memory + SESSION_REPORT + research journal (+ Obsidian if configured) |
-
----
-
-<!-- CUSTOMIZE: Replace the example entries below with your own
-     Beamer environments for talks. -->
-
-## Beamer Custom Environments (Talks)
-
-| Environment       | Effect        | Use Case       |
-|-------------------|---------------|----------------|
-| `[your-env]`      | [Description] | [When to use]  |
+| Field | Description | Type |
+|-------|-------------|------|
+| Date | Trading date (YYYY/MM/DD) | Date |
+| Ticker | Stock code (e.g. 000001.SZ) | str |
+| Sector | Industry sector (30 sectors) | str |
+| MktCap | Market capitalization | float |
+| PE_TTM | P/E ratio (trailing 12M) | float |
+| PB_MRQ | P/B ratio (most recent quarter) | float |
+| DivYield_TTM | Dividend yield | float |
+| ROE_TTM | Return on equity | float |
+| Margin | Profit margin | float |
+| TA_YoY | Total assets YoY growth | float |
+| Salse_YoY | Sales YoY growth | float |
+| TA_Turnover | Total asset turnover | float |
+| MoM_30/60/180/365 | Momentum (1M/2M/6M/12M) | float |
+| TurnOver_30/60/365 | Turnover rate (1M/2M/12M) | float |
+| Beta_100D | 100-day market beta | float |
+| Vol_90D | 90-day volatility | float |
+| NVol_90D | 90-day idiosyncratic volatility | float |
+| R1W | **Target:** 1-week forward return | float |
 
 ---
 
 ## Output Organization
 
-<!-- Options: by-script (default) or by-purpose -->
-Output organization: by-script
-
-<!-- by-script:  paper/figures/main_regression/figure1.pdf, paper/tables/main_regression/table1.tex -->
-<!-- by-purpose: paper/figures/estimation/coefplot_main.pdf, paper/tables/robustness/alt_controls.tex -->
+Output organization: by-purpose
 
 ---
 
@@ -134,7 +88,39 @@ Output organization: by-script
 
 | Component | File | Status | Description |
 |-----------|------|--------|-------------|
-| Paper | `paper/main.tex` | [draft/submitted/R&R] | [Brief description] |
-| Data | `scripts/R/` | [complete/in-progress] | [Analysis description] |
-| Replication | `paper/replication/` | [not started/ready] | [Deposit status] |
-| Job Market Talk | `paper/talks/job_market_talk.tex` | -- | [Status] |
+| Data | `data/raw/data2026.csv` | ready | 154,644 obs, 263 stocks, 588 dates (2014-2026) |
+| Factor Analysis | `scripts/Python/01_factor_analysis.ipynb` | planned | Descriptive stats, IC analysis, factor correlations |
+| ML Modeling | `scripts/Python/02_ml_modeling.ipynb` | planned | XGBoost, Ridge, SHAP feature importance |
+| Lecture PPT | `paper/talks/factor_research_lecture.pptx` | planned | Chinese lecture slides |
+
+## Commands
+
+```bash
+# Run factor analysis notebook
+cd scripts/Python && jupyter nbconvert --to notebook --execute 01_factor_analysis.ipynb
+
+# Run ML modeling notebook
+cd scripts/Python && jupyter nbconvert --to notebook --execute 02_ml_modeling.ipynb
+
+# Generate lecture PPT
+cd scripts/Python && python generate_ppt.py
+
+# Activate environment
+conda activate base
+
+# Update macro/futures/index data — 自动跟随期货清洗 (/macro)
+conda activate ztrader && python /d/ZTrader/macro_research/full_data_pull.py
+
+# 独立运行期货数据清洗 (到 data/cleaned/futures/)
+conda activate base && python scripts/Python/clean_futures.py
+```
+
+## Macro Data
+
+宏数据存储在 D:\ZTrader\macro_research\data\ 下，输入 `/macro` 即可增量更新。
+
+| 类别 | 位置 | 品种数 |
+|------|------|--------|
+| 期货 | `D:\ZTrader\macro_research\data\futures\` | 82个品种 |
+| 指数 | `D:\ZTrader\macro_research\data\indices\` | 7个指数 |
+| 宏观 | `D:\ZTrader\macro_research\data\macro\` | 6个指标 |
