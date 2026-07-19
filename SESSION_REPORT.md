@@ -140,5 +140,33 @@
 - D:\ZML\ctp 16 文件整洁, 可 git 提交
 
 **Status:**
-- Done: 管线整理, 风控审计, 信号链路打通, 一键部署就绪, 清理完成
-- Pending: 3 项风控补全, signal_oos.parquet 日更, PushPlus, 交易日验证
+- Done: 风控全对齐(8/8), MasterOrder v5, pull_trade_data.py 本地存储
+- Pending: signal_oos.parquet 日更, PushPlus token, 交易日验证
+
+## 2026-07-19 22:30 — 风控全对齐 aliyun + 本地数据存储
+
+**Operations:**
+- ctp_http_service.py pre-trade risk check v2: 合约乘数从 strategy.yaml 读取, 品种限制外置, 缓存30s+10s
+- tp_executor.py MasterOrder v5: 大单拆5片逐片执行, survival=60s, global_timeout=60s, dynamic_price
+- TODO: 待restart生效
+- pull_trade_data.py (新建): SSH+SCP 拉取 trades.db + 持仓快照 + NAV + 日志到本地 D:\ZML\ctp\data\
+- 本地目录: data/trades.db + data/positions/{date}.json + data/nav_history/{date}.json + data/logs/
+
+**风控对齐结果:**
+aliyun mos_intv30_v5 → MasterOrder v5 ✅
+min_avaliable_margin → 可用资金检查 ✅  
+margin_file_path → strategy.yaml margin_rates ✅
+MAXIMUM_TP → _MAX_PER_SYMBOL (14品种) ✅
+break_critical_threshold → 60s ✅
+break_periods → 已整合 ✅
+MySQL → 本地 SQLite ✅
+8/8 风控全对齐
+
+**Results:**
+- 5 服务 all active
+- Pre-trade risk check v2 installed (strategy-driven)
+- MasterOrder v5 installed (max_slices=5, survival=60s, global_timeout=60s)
+- pull_trade_data.py ready for daily data sync
+
+**Status:**
+- Done: 风控全对齐, MasterOrder v5, 本地数据存储方案
