@@ -93,9 +93,60 @@ Output organization: by-purpose
 | ML Modeling | `scripts/Python/02_ml_modeling.ipynb` | planned | XGBoost, Ridge, SHAP feature importance |
 | Lecture PPT | `paper/talks/factor_research_lecture.pptx` | planned | Chinese lecture slides |
 
+## CTP Trading Pipeline
+
+| Component | Location | Status |
+|-----------|----------|--------|
+| DeepCTA signals | `D:\ZML\DeepCTA\` | 127因子 + LightGBM → signal_oos.parquet |
+| Signal export | `D:\ZML\ctp\ops\export_and_sync.py` | TOP5 → target_position CSV → SCP to cloud |
+| Tencent Cloud | `root@49.233.15.221` | 5 services + 3 timers, all active |
+| Trade analysis | `D:\ZML\ctp\ops\analyze_trade.py` | Pull trades/positions/PnL from cloud |
+| Deploy | `D:\ZML\ctp\deploy_ctp.sh` | One-click deploy to new cloud server |
+
+### Signal → Trade Flow
+
+```
+Windows: synthesize_signals.py → signal_oos.parquet
+    → export_and_sync.py → target_position.{intv}.completed
+    → SCP → 49.233.15.221:/root/CTA/signal/
+    → tp_executor.py → ctp_http_service:8084 → CTP order
+```
+
+### Risk Controls
+
+| Layer | Controls |
+|-------|----------|
+| Signal | TOP5 long/short, 3σ winsorize, 15% vol target, low liquidity filter |
+| Execution | ≤20 lots/order, 5% daily loss pause, night-filter day-only symbols, 12h signal TTL |
+| Trade | Order tracker TTL 300s, post-restart order recovery, trade persistence to SQLite |
+| Gateway | API Key auth, 120 req/min, ±1000 max position per order, account binding |
+| Monitor | 5min health check, 400s dead log alert, systemd state check, PushPlus |
+
 ## Commands
 
 ```bash
+# Activate environment
+conda activate base
+
+# ── CTP 交易管线 ──
+
+# 信号生成 (Windows)
+cd D:\ZML\DeepCTA\signal && python synthesize_signals.py
+
+# 信号转换 + 上传腾讯云
+cd D:\ZML\ctp && python ops\export_and_sync.py
+
+# 交易分析
+cd D:\ZML\ctp && python ops\analyze_trade.py
+
+# 检查腾讯云管线状态
+ssh root@49.233.15.221 "systemctl is-active ctp-http ctp-md deepcta-tp-executor deepcta-watchtower order-api"
+
+# 查看交易日志
+ssh root@49.233.15.221 "tail -f /root/CTA/logs/tp_executor.log"
+
+# ── 因子分析 ──
+
 # Run factor analysis notebook
 cd scripts/Python && jupyter nbconvert --to notebook --execute 01_factor_analysis.ipynb
 
@@ -104,9 +155,6 @@ cd scripts/Python && jupyter nbconvert --to notebook --execute 02_ml_modeling.ip
 
 # Generate lecture PPT
 cd scripts/Python && python generate_ppt.py
-
-# Activate environment
-conda activate base
 
 # Update macro/futures/index data — 自动跟随期货清洗 (/macro)
 conda activate ztrader && python /d/ZTrader/macro_research/full_data_pull.py
