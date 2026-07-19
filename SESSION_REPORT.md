@@ -84,8 +84,7 @@
 - 磁盘: 8.9G/40G, 内存: 2.7G/3.7G available
 
 **Commits:**
-- Windows本地: .gitignore新建, .env.example新建, risk_manager.py修正, deploy.py模板清空
-- 腾讯云: 全部文件就地修改，已备份到 *.bak.*
+- `235bf20` chore: 交易管线审计+清理完成, 更新 SESSION_REPORT 和 CLAUDE.md
 
 **Status:**
 - Done: 凭据安全迁移, 端口加固, 进程守护, 冗余清理, 管线整理完成 + 风控审计
